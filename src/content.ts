@@ -30,30 +30,84 @@ class GitHubReviewEnhancer {
       position: fixed;
       top: 20px;
       right: 20px;
-      background: #0366d6;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 4px;
+      background: #ffffff;
+      color: #24292e;
+      padding: 16px 24px;
+      border-radius: 6px;
       z-index: 9999;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      min-width: 300px;
     `;
-    message.textContent = "Initializing Gentle Review...";
+
+    const title = document.createElement("div");
+    title.style.cssText = `
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 14px;
+    `;
+    title.textContent = "Initializing Gentle Review";
+    message.appendChild(title);
+
+    const progressContainer = document.createElement("div");
+    progressContainer.style.cssText = `
+      background: #e1e4e8;
+      height: 4px;
+      border-radius: 2px;
+      overflow: hidden;
+      margin: 8px 0;
+    `;
+
+    const progressBar = document.createElement("div");
+    progressBar.id = "gentle-review-progress-bar";
+    progressBar.style.cssText = `
+      background: #0366d6;
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s ease-in-out;
+    `;
+    progressContainer.appendChild(progressBar);
+
+    const status = document.createElement("div");
+    status.id = "gentle-review-status";
+    status.style.cssText = `
+      font-size: 12px;
+      color: #586069;
+    `;
+    status.textContent = "Loading model...";
+
+    message.appendChild(progressContainer);
+    message.appendChild(status);
     document.body.appendChild(message);
   }
 
   private updateInitializationProgress(progress: number) {
-    const message = document.getElementById("gentle-review-init-message");
-    if (message) {
-      message.textContent = `Initializing Gentle Review... ${Math.round(
-        progress * 100
-      )}%`;
+    const progressBar = document.getElementById("gentle-review-progress-bar");
+    const status = document.getElementById("gentle-review-status");
+
+    if (progressBar) {
+      progressBar.style.width = `${Math.round(progress * 100)}%`;
+    }
+
+    if (status) {
+      if (progress < 0.3) {
+        status.textContent = "Loading model...";
+      } else if (progress < 0.6) {
+        status.textContent = "Preparing for enhancement...";
+      } else if (progress < 0.9) {
+        status.textContent = "Almost ready...";
+      } else {
+        status.textContent = "Initialization complete!";
+      }
     }
   }
 
   private hideInitializationMessage() {
     const message = document.getElementById("gentle-review-init-message");
     if (message) {
-      message.remove();
+      message.style.opacity = "0";
+      message.style.transition = "opacity 0.3s ease-in-out";
+      setTimeout(() => message.remove(), 300);
     }
   }
 
