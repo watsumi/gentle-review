@@ -123,14 +123,17 @@ export class ReviewLLM {
 - Do not use the examples in the Output Examples section for actual output
 
 **Output Examples**:
-Japanese Input: "再帰処理は遅い"
-Japanese Output: "再帰処理([file:main.py L12])の検討をお願いできますか？計算量O(n²)のため大規模データに不向きです (Con)。反復解法に変更するとパフォーマンスが向上する可能性があります (例: for ループの使用)。重要度: 高"
-
+1. English -> English:
 English Input: "This error handling is terrible"
 English Output: "Let's strengthen the error handling in [file:api_service.go]. Adding recovery middleware would prevent cascading failures (Why). Example: defer recover() (Severity: Critical)"
 
-English Input: "Typo here. Fix it."
-English Output: "Let's correct the spelling of 'configration' → 'configuration' in [specific_part]. Maintaining consistent naming (Why) helps prevent future confusion in the config loader. (Severity: Suggestion)"
+2. French -> French:
+French Input: "erreur typographique"
+French Output: "Corriger l'orthographe de configration → configuration. Il est important de conserver une dénomination cohérente pour éviter toute confusion. (Importance : faible)"
+
+2. Japanese -> Japanese:
+Japanese Input: "タイポ"
+Japanese Output: "configration → configuration のスペルを修正しましょう。混乱を防ぐために、一貫した命名を維持することが重要です。 (重要度: 低)"
 `,
       },
       {
