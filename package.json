@@ -1,0 +1,23 @@
+{
+  "name": "gentle-review",
+  "version": "1.0.0",
+  "description": "AI-powered code review assistant for GitHub",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "dev": "webpack --mode development --watch",
+    "prod": "webpack --mode production"
+  },
+  "dependencies": {
+    "@mlc-ai/web-llm": "^0.2.78"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.260",
+    "@types/node": "^20.11.19",
+    "typescript": "^5.3.3",
+    "ts-loader": "^9.5.1",
+    "webpack": "^5.90.1",
+    "webpack-cli": "^5.1.4",
+    "copy-webpack-plugin": "^12.0.2"
+  }
+}

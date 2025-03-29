@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Gentle Review Settings</title>
+    <style>
+      body {
+        width: 300px;
+        padding: 15px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      }
+      .setting-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+      }
+      .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+      }
+      .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.4s;
+        border-radius: 24px;
+      }
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+      }
+      input:checked + .slider {
+        background-color: #2196f3;
+      }
+      input:checked + .slider:before {
+        transform: translateX(26px);
+      }
+      select,
+      input[type="number"] {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      .description {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Gentle Review Settings</h2>
+
+    <div class="setting-group">
+      <label>Enable Extension</label>
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggle-enable" />
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="setting-group">
+      <label for="model-select">Model</label>
+      <select id="model-select">
+        <option value="llama-2-7b-chat">Llama 2 7B Chat</option>
+        <option value="llama-2-13b-chat">Llama 2 13B Chat</option>
+        <option value="llama-2-70b-chat">Llama 2 70B Chat</option>
+      </select>
+      <div class="description">
+        Select the language model to use for comment enhancement
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <label for="temperature">Temperature</label>
+      <input type="number" id="temperature" min="0" max="1" step="0.1" />
+      <div class="description">
+        Controls randomness in the model's output (0.0 - 1.0)
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <label for="max-tokens">Max Tokens</label>
+      <input type="number" id="max-tokens" min="100" max="2000" step="100" />
+      <div class="description">Maximum length of the generated response</div>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
