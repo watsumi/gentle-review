@@ -1,4 +1,4 @@
-import { ExtensionSettings } from "./types";
+import type { ExtensionSettings } from "./types";
 
 class PopupUI {
   private settings: ExtensionSettings;
@@ -49,12 +49,12 @@ class PopupUI {
     });
 
     temperatureInput.addEventListener("change", () => {
-      this.settings.temperature = parseFloat(temperatureInput.value);
+      this.settings.temperature = Number.parseFloat(temperatureInput.value);
       this.saveSettings();
     });
 
     maxTokensInput.addEventListener("change", () => {
-      this.settings.maxTokens = parseInt(maxTokensInput.value);
+      this.settings.maxTokens = Number.parseInt(maxTokensInput.value);
       this.saveSettings();
     });
   }

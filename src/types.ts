@@ -1,25 +1,24 @@
 export interface ReviewComment {
   id: string;
   content: string;
-  lineNumber: number;
-  filePath: string;
-  isResolved: boolean;
 }
 
-export interface LLMResponse {
-  improvedContent: string;
-  pros: string[];
-  cons: string[];
-  suggestions: string[];
-}
-
-export interface EnhancedComment extends ReviewComment, LLMResponse {}
-
-export interface ExtensionSettings {
+export type ExtensionSettings = {
   enabled: boolean;
   model: string;
   temperature: number;
   maxTokens: number;
-}
+};
 
 export type InitProgressCallback = (progress: number) => void;
+
+// Service Worker types
+declare global {
+  interface ServiceWorkerGlobalScope {
+    addEventListener(
+      type: "install" | "activate" | "fetch",
+      listener: EventListenerOrEventListenerObject,
+      options?: boolean | AddEventListenerOptions
+    ): void;
+  }
+}

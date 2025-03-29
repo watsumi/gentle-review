@@ -10,43 +10,121 @@
   transition: background-color 0.2s;
 }
 
+.gentle-review-enhance[disabled] {
+  background-color: #0245a3;
+  cursor: not-allowed;
+}
+
 .gentle-review-enhance:hover {
   background-color: #0245a3;
 }
 
-.gentle-review-enhanced {
-  margin-top: 16px;
-  padding: 16px;
-  background-color: #f6f8fa;
+.gentle-review-show-original {
+  background-color: #ffffff;
+  color: #24292e;
   border: 1px solid #e1e4e8;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.gentle-review-show-original:hover {
+  color: #f6f8fa;
+  background-color: #24292e;
+}
+
+.gentle-review-toast {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  transform: translateX(-50%);
+  background: #24292e;
+  color: white;
+  padding: 12px 24px;
   border-radius: 6px;
+  font-size: 14px;
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.gentle-review-enhanced h4 {
-  margin: 0 0 8px 0;
+.gentle-review-toast.show {
+  opacity: 1;
+}
+
+#gentle-review-init-message {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #ffffff;
   color: #24292e;
+  padding: 16px 24px;
+  border-radius: 6px;
+  z-index: 9999;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  min-width: 300px;
+}
+
+#gentle-review-init-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+#gentle-review-init-title {
+  font-weight: 600;
   font-size: 14px;
 }
 
-.gentle-review-enhanced p {
-  margin: 0 0 16px 0;
-  color: #24292e;
-  font-size: 14px;
-  line-height: 1.5;
+#gentle-review-progress-container {
+  background: #e1e4e8;
+  height: 4px;
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 8px 0;
 }
 
-.gentle-review-enhanced ul {
-  margin: 0 0 16px 0;
-  padding-left: 20px;
+#gentle-review-close-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: #586069;
+  font-size: 16px;
+  line-height: 1;
 }
 
-.gentle-review-enhanced li {
-  color: #24292e;
-  font-size: 14px;
-  line-height: 1.5;
-  margin-bottom: 4px;
+.gentle-review-loading-circle {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin: 4px;
+  border: 2px solid #0366d6;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  vertical-align: middle;
 }
 
-.gentle-review-enhanced li:last-child {
-  margin-bottom: 0;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+#gentle-review-progress-bar {
+  background: #0366d6;
+  height: 100%;
+  width: 0%;
+  transition: width 0.3s ease-in-out;
+}
+
+#gentle-review-status {
+  font-size: 12px;
+  color: #586069;
 }

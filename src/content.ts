@@ -1,80 +1,65 @@
-import { ReviewComment, EnhancedComment } from "./types";
 import { ReviewLLM } from "./llm";
 
 class GitHubReviewEnhancer {
   private llm: ReviewLLM;
-  private observer: MutationObserver;
 
   constructor() {
     this.llm = new ReviewLLM();
-    this.observer = new MutationObserver(this.handleDOMChanges.bind(this));
+    this.llm.setInitializationChangeCallback((isInitialized) => {
+      this.updateEnhanceButtons(isInitialized);
+    });
     this.initialize();
   }
 
   private async initialize() {
     this.showInitializationMessage();
+    await this.replaceCommentToButtons();
     await this.llm.initialize((progress) => {
       this.updateInitializationProgress(progress);
     });
     this.hideInitializationMessage();
-    this.observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-    });
   }
 
   private showInitializationMessage() {
     const message = document.createElement("div");
     message.id = "gentle-review-init-message";
-    message.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #ffffff;
-      color: #24292e;
-      padding: 16px 24px;
-      border-radius: 6px;
-      z-index: 9999;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-      min-width: 300px;
-    `;
+
+    const header = document.createElement("div");
+    header.id = "gentle-review-init-header";
+
+    const titleContainer = document.createElement("div");
+    titleContainer.style.cssText =
+      "display: flex; gap: 8px; align-items: center;";
 
     const title = document.createElement("div");
-    title.style.cssText = `
-      font-weight: 600;
-      margin-bottom: 8px;
-      font-size: 14px;
-    `;
+    title.id = "gentle-review-init-title";
     title.textContent = "Initializing Gentle Review";
-    message.appendChild(title);
+
+    const loadingCircle = document.createElement("div");
+    loadingCircle.className = "gentle-review-loading-circle";
+
+    titleContainer.appendChild(title);
+    titleContainer.appendChild(loadingCircle);
+
+    const closeButton = document.createElement("button");
+    closeButton.id = "gentle-review-close-button";
+    closeButton.innerHTML = "×";
+    closeButton.onclick = () => message.remove();
+
+    header.appendChild(titleContainer);
+    header.appendChild(closeButton);
+    message.appendChild(header);
 
     const progressContainer = document.createElement("div");
-    progressContainer.style.cssText = `
-      background: #e1e4e8;
-      height: 4px;
-      border-radius: 2px;
-      overflow: hidden;
-      margin: 8px 0;
-    `;
+    progressContainer.id = "gentle-review-progress-container";
+    progressContainer.style.display = "hidden";
 
     const progressBar = document.createElement("div");
     progressBar.id = "gentle-review-progress-bar";
-    progressBar.style.cssText = `
-      background: #0366d6;
-      height: 100%;
-      width: 0%;
-      transition: width 0.3s ease-in-out;
-    `;
     progressContainer.appendChild(progressBar);
 
     const status = document.createElement("div");
     status.id = "gentle-review-status";
-    status.style.cssText = `
-      font-size: 12px;
-      color: #586069;
-    `;
-    status.textContent = "Loading model...";
 
     message.appendChild(progressContainer);
     message.appendChild(status);
@@ -82,23 +67,27 @@ class GitHubReviewEnhancer {
   }
 
   private updateInitializationProgress(progress: number) {
+    const progressContainer = document.getElementById(
+      "gentle-review-progress-container"
+    );
+    if (progressContainer) progressContainer.style.display = "block";
+
     const progressBar = document.getElementById("gentle-review-progress-bar");
     const status = document.getElementById("gentle-review-status");
 
-    if (progressBar) {
-      progressBar.style.width = `${Math.round(progress * 100)}%`;
-    }
+    if (!status) return;
 
-    if (status) {
-      if (progress < 0.3) {
-        status.textContent = "Loading model...";
-      } else if (progress < 0.6) {
-        status.textContent = "Preparing for enhancement...";
-      } else if (progress < 0.9) {
-        status.textContent = "Almost ready...";
-      } else {
-        status.textContent = "Initialization complete!";
-      }
+    const progressText = Math.round(progress * 100);
+    if (progressBar) progressBar.style.width = `${progressText}%`;
+
+    if (progress < 0.3) {
+      status.textContent = `Loading model...${progressText}%`;
+    } else if (progress < 0.6) {
+      status.textContent = `Preparing for enhancement...${progressText}%`;
+    } else if (progress < 0.9) {
+      status.textContent = `Almost ready...${progressText}%`;
+    } else {
+      status.textContent = `Initialization complete!${progressText}%`;
     }
   }
 
@@ -111,108 +100,143 @@ class GitHubReviewEnhancer {
     }
   }
 
-  private handleDOMChanges(mutations: MutationRecord[]) {
-    for (const mutation of mutations) {
-      if (mutation.addedNodes.length) {
-        this.processNewComments();
-      }
-    }
-  }
-
-  private async processNewComments() {
-    const comments = this.findReviewComments();
-    for (const comment of comments) {
-      if (!this.hasEnhancementButton(comment)) {
-        await this.enhanceComment(comment);
-      }
-    }
-  }
-
   private findReviewComments(): Element[] {
-    return Array.from(document.querySelectorAll(".review-comment"));
-  }
-
-  private hasEnhancementButton(comment: Element): boolean {
-    return !!comment.querySelector(".gentle-review-enhance");
+    return Array.from(
+      document.querySelectorAll(".timeline-comment, .review-comment")
+    );
   }
 
   private async enhanceComment(commentElement: Element) {
-    const comment = this.extractCommentData(commentElement);
-    if (!comment) return;
-
-    const llmResponse = await this.llm.enhanceComment(comment);
-    const enhancedComment: EnhancedComment = {
-      ...comment,
-      ...llmResponse,
-    };
-    this.addEnhancementButton(commentElement, enhancedComment);
-  }
-
-  private extractCommentData(commentElement: Element): ReviewComment | null {
-    const contentElement = commentElement.querySelector(".comment-body");
-    const lineNumberElement = commentElement.querySelector(".line-number");
-
-    if (!contentElement || !lineNumberElement) return null;
-
-    return {
-      id: commentElement.getAttribute("data-comment-id") || "",
-      content: contentElement.textContent || "",
-      lineNumber: parseInt(lineNumberElement.textContent || "0"),
-      filePath: this.getFilePath(commentElement),
-      isResolved: false,
-    };
-  }
-
-  private getFilePath(commentElement: Element): string {
-    const fileHeader = commentElement.closest(".file-header");
-    return fileHeader?.querySelector(".file-info")?.textContent || "";
-  }
-
-  private addEnhancementButton(
-    commentElement: Element,
-    enhancedComment: EnhancedComment
-  ) {
-    const button = document.createElement("button");
-    button.className = "gentle-review-enhance";
-    button.textContent = "Enhance Comment";
-    button.onclick = () =>
-      this.showEnhancedComment(commentElement, enhancedComment);
-
-    const actionsContainer = commentElement.querySelector(".comment-actions");
-    if (actionsContainer) {
-      actionsContainer.appendChild(button);
+    const commentId = commentElement.id;
+    const comment = commentElement.getAttribute("data-comment");
+    if (!comment || comment.trim() === "") {
+      this.showToast("コメントが見つかりませんでした。");
+      return;
     }
+
+    const loadingCircle = document.createElement("div");
+    loadingCircle.className = "gentle-review-loading-circle";
+
+    const buttonContainer = commentElement.querySelector(
+      ".gentle-review-button-container"
+    );
+    if (buttonContainer) {
+      buttonContainer.insertAdjacentElement("beforebegin", loadingCircle);
+
+      const reviewComment = { id: commentId, content: comment };
+      const chunks = await this.llm.enhanceComment(reviewComment);
+
+      let reply = "";
+      const contentElement = document.getElementById(commentElement.id);
+      if (!contentElement) return;
+
+      const enhancedContent = document.createElement("p");
+      buttonContainer.insertAdjacentElement("beforebegin", enhancedContent);
+
+      try {
+        for await (const chunk of chunks) {
+          const content = chunk.choices[0]?.delta.content || "";
+          reply += content;
+          enhancedContent.innerHTML = reply;
+        }
+      } catch (error) {
+        console.error("Error processing chunks:", error);
+        this.showToast("コメントの生成中にエラーが発生しました。");
+      } finally {
+        loadingCircle.remove();
+      }
+    } else {
+      this.showToast("コメントの生成中にエラーが発生しました。");
+    }
+  }
+
+  private extractCommentData(
+    commentElement: Element
+  ): string | null | undefined {
+    return commentElement.querySelector("p")?.textContent;
   }
 
   private showEnhancedComment(
     commentElement: Element,
-    enhancedComment: EnhancedComment
+    enhancedComment: string
   ) {
-    const contentElement = commentElement.querySelector(".comment-body");
+    const contentElement = document.getElementById(commentElement.id);
     if (!contentElement) return;
 
-    const enhancedContent = `
-      <div class="gentle-review-enhanced">
-        <h4>Enhanced Comment:</h4>
-        <p>${enhancedComment.improvedContent}</p>
-        <h4>Pros:</h4>
-        <ul>
-          ${enhancedComment.pros?.map((pro) => `<li>${pro}</li>`).join("")}
-        </ul>
-        <h4>Cons:</h4>
-        <ul>
-          ${enhancedComment.cons?.map((con) => `<li>${con}</li>`).join("")}
-        </ul>
-        <h4>Suggestions:</h4>
-        <ul>
-          ${enhancedComment.suggestions
-            ?.map((suggestion) => `<li>${suggestion}</li>`)
-            .join("")}
-        </ul>
-      </div>
-    `;
+    const enhancedContent = document.createElement("p");
+    enhancedContent.innerHTML = enhancedComment;
 
-    contentElement.insertAdjacentHTML("beforeend", enhancedContent);
+    commentElement.appendChild(enhancedContent);
+  }
+
+  private updateEnhanceButtons(isInitialized: boolean) {
+    const enhanceButtons = document.querySelectorAll(".gentle-review-enhance");
+    for (const button of enhanceButtons) {
+      if (button instanceof HTMLButtonElement) {
+        button.disabled = !isInitialized;
+      }
+    }
+  }
+
+  private async replaceCommentToButtons() {
+    const comments = this.findReviewComments();
+    for (const comment of comments) {
+      const contentElement = comment.querySelector(".comment-body");
+      if (contentElement) {
+        const commentData = this.extractCommentData(contentElement);
+        comment.setAttribute("data-comment", commentData || "");
+        // Create container for buttons
+        const buttonContainer = document.createElement("div");
+        buttonContainer.className = "gentle-review-button-container";
+        buttonContainer.style.cssText = "display: flex; gap: 8px;";
+
+        // Create and setup enhance button
+        const enhanceButton = document.createElement("button");
+        enhanceButton.className = "gentle-review-enhance";
+        enhanceButton.textContent = "Enhance Comment";
+        enhanceButton.disabled = !this.llm.isInitialized;
+        enhanceButton.onclick = async (e) => {
+          e.preventDefault();
+          if (enhanceButton.disabled) return;
+          await this.enhanceComment(comment);
+        };
+
+        // Create and setup show original button
+        const showOriginalButton = document.createElement("button");
+        showOriginalButton.className = "gentle-review-show-original";
+        showOriginalButton.textContent = "Show Original Comment";
+        showOriginalButton.onclick = (e) => {
+          e.preventDefault();
+          contentElement.children[0].setAttribute("style", "display: block;");
+          contentElement.removeChild(buttonContainer);
+          contentElement.appendChild(enhanceButton);
+        };
+
+        // Append buttons to container
+        buttonContainer.appendChild(enhanceButton);
+        buttonContainer.appendChild(showOriginalButton);
+
+        // Clear and append new content
+        contentElement.children[0].setAttribute("style", "display: none;");
+        contentElement.appendChild(buttonContainer);
+      }
+    }
+  }
+
+  private showToast(message: string, duration = 3000) {
+    const toast = document.createElement("div");
+    toast.className = "gentle-review-toast";
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    // Trigger reflow
+    toast.offsetHeight;
+    toast.classList.add("show");
+
+    setTimeout(() => {
+      toast.classList.remove("show");
+      setTimeout(() => toast.remove(), 300);
+    }, duration);
   }
 }
 
