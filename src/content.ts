@@ -117,36 +117,31 @@ class GitHubReviewEnhancer {
     const loadingCircle = document.createElement("div");
     loadingCircle.className = "gentle-review-loading-circle";
 
-    const buttonContainer = commentElement.querySelector(
-      ".gentle-review-button-container"
-    );
-    if (buttonContainer) {
-      buttonContainer.insertAdjacentElement("beforebegin", loadingCircle);
+    const button = commentElement.querySelector(".gentle-review-enhance");
+    try {
+      if (!button) throw new Error("Button container not found.");
+      button.insertAdjacentElement("beforebegin", loadingCircle);
 
       const reviewComment = { id: commentId, content: comment };
       const chunks = await this.llm.enhanceComment(reviewComment);
 
       let reply = "";
       const contentElement = document.getElementById(commentElement.id);
-      if (!contentElement) return;
+      if (!contentElement) throw new Error("Content element not found.");
 
       const enhancedContent = document.createElement("p");
-      buttonContainer.insertAdjacentElement("beforebegin", enhancedContent);
+      button.insertAdjacentElement("beforebegin", enhancedContent);
 
-      try {
-        for await (const chunk of chunks) {
-          const content = chunk.choices[0]?.delta.content || "";
-          reply += content;
-          enhancedContent.innerHTML = reply;
-        }
-      } catch (error) {
-        console.error("Error processing chunks:", error);
-        this.showToast("コメントの生成中にエラーが発生しました。");
-      } finally {
-        loadingCircle.remove();
+      for await (const chunk of chunks) {
+        const content = chunk.choices[0]?.delta.content || "";
+        reply += content;
+        enhancedContent.innerHTML = reply;
       }
-    } else {
+    } catch (error) {
+      console.error("Error processing chunks:", error);
       this.showToast("コメントの生成中にエラーが発生しました。");
+    } finally {
+      loadingCircle.remove();
     }
   }
 
@@ -198,7 +193,9 @@ class GitHubReviewEnhancer {
         enhanceButton.onclick = async (e) => {
           e.preventDefault();
           if (enhanceButton.disabled) return;
+          enhanceButton.disabled = true;
           await this.enhanceComment(comment);
+          enhanceButton.disabled = false;
         };
 
         // Create and setup show original button
@@ -207,7 +204,9 @@ class GitHubReviewEnhancer {
         showOriginalButton.textContent = "Show Original Comment";
         showOriginalButton.onclick = (e) => {
           e.preventDefault();
-          contentElement.children[0].setAttribute("style", "display: block;");
+          for (let i = 0; i < contentElement.children.length; i++) {
+            contentElement.children[i].setAttribute("style", "display: block;");
+          }
           contentElement.removeChild(buttonContainer);
           contentElement.appendChild(enhanceButton);
         };
@@ -217,7 +216,9 @@ class GitHubReviewEnhancer {
         buttonContainer.appendChild(showOriginalButton);
 
         // Clear and append new content
-        contentElement.children[0].setAttribute("style", "display: none;");
+        for (let i = 0; i < contentElement.children.length; i++) {
+          contentElement.children[i].setAttribute("style", "display: none;");
+        }
         contentElement.appendChild(buttonContainer);
       }
     }
