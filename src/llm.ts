@@ -121,6 +121,9 @@ export class ReviewLLM {
 - Use collaborative language ("Let's...", "We might...")
 - Include severity level: [Critical/Important/Suggestion]
 - Do not use the examples in the Output Examples section for actual output
+- Exclude the input comment from the output
+- Use <p> tags for each line of the output
+- Use <br> tags for new lines
 
 **Input Examples**:
 1. English:
@@ -134,13 +137,13 @@ export class ReviewLLM {
 
 **Output Examples**:
 1. English:
-"Let's strengthen the error handling in [file:api_service.go]. Adding recovery middleware would prevent cascading failures (Why). Example: defer recover() (Severity: Critical)"
+"<p>Let's strengthen the error handling in [file:api_service.go].<br>Adding recovery middleware would prevent cascading failures (Why).<br />Example: defer recover() (Severity: Critical)</p>"
 
 2. French:
-"Corriger l'orthographe de configration → configuration. Il est important de conserver une dénomination cohérente pour éviter toute confusion. (Importance : faible)"
+"<p>Corriger l'orthographe de configration → configuration.<br>Il est important de conserver une dénomination cohérente pour éviter toute confusion. (Importance : faible)</p>"
 
 3. Japanese:
-"configration → configuration のスペルを修正しましょう。混乱を防ぐために、一貫した命名を維持することが重要です。 (重要度: 低)"
+"<p>configration → configuration のスペルを修正しましょう。<br>混乱を防ぐために、一貫した命名を維持することが重要です。 (重要度: 低)</p>"
 `,
       },
       {

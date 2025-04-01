@@ -129,7 +129,7 @@ class GitHubReviewEnhancer {
       const contentElement = document.getElementById(commentElement.id);
       if (!contentElement) throw new Error("Content element not found.");
 
-      const enhancedContent = document.createElement("p");
+      const enhancedContent = document.createElement("div");
       button.parentElement?.insertAdjacentElement(
         "beforebegin",
         enhancedContent
