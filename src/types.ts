@@ -8,6 +8,7 @@ export type ExtensionSettings = {
   model: string;
   temperature: number;
   maxTokens: number;
+  provider: "web-llm" | "OpenAI";
 };
 
 export type InitProgressCallback = (progress: number) => void;

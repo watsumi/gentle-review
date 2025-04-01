@@ -9,6 +9,7 @@ class PopupUI {
       model: "llama-2-7b-chat",
       temperature: 0.7,
       maxTokens: 500,
+      provider: "web-llm",
     };
     this.initialize();
   }
@@ -37,6 +38,9 @@ class PopupUI {
     const maxTokensInput = document.getElementById(
       "max-tokens"
     ) as HTMLInputElement;
+    const providerSelect = document.getElementById(
+      "provider-select"
+    ) as HTMLSelectElement;
 
     toggleSwitch.addEventListener("change", () => {
       this.settings.enabled = toggleSwitch.checked;
@@ -79,11 +83,15 @@ class PopupUI {
     const maxTokensInput = document.getElementById(
       "max-tokens"
     ) as HTMLInputElement;
+    const providerSelect = document.getElementById(
+      "provider-select"
+    ) as HTMLSelectElement;
 
     toggleSwitch.checked = this.settings.enabled;
     modelSelect.value = this.settings.model;
     temperatureInput.value = this.settings.temperature.toString();
     maxTokensInput.value = this.settings.maxTokens.toString();
+    providerSelect.value = this.settings.provider;
   }
 }
 
