@@ -120,7 +120,7 @@ class GitHubReviewEnhancer {
     const button = commentElement.querySelector(".gentle-review-enhance");
     try {
       if (!button) throw new Error("Button container not found.");
-      button.insertAdjacentElement("beforebegin", loadingCircle);
+      button.parentElement?.insertAdjacentElement("beforebegin", loadingCircle);
 
       const reviewComment = { id: commentId, content: comment };
       const chunks = await this.llm.enhanceComment(reviewComment);
@@ -130,7 +130,10 @@ class GitHubReviewEnhancer {
       if (!contentElement) throw new Error("Content element not found.");
 
       const enhancedContent = document.createElement("p");
-      button.insertAdjacentElement("beforebegin", enhancedContent);
+      button.parentElement?.insertAdjacentElement(
+        "beforebegin",
+        enhancedContent
+      );
 
       for await (const chunk of chunks) {
         const content = chunk.choices[0]?.delta.content || "";
@@ -149,19 +152,6 @@ class GitHubReviewEnhancer {
     commentElement: Element
   ): string | null | undefined {
     return commentElement.querySelector("p")?.textContent;
-  }
-
-  private showEnhancedComment(
-    commentElement: Element,
-    enhancedComment: string
-  ) {
-    const contentElement = document.getElementById(commentElement.id);
-    if (!contentElement) return;
-
-    const enhancedContent = document.createElement("p");
-    enhancedContent.innerHTML = enhancedComment;
-
-    commentElement.appendChild(enhancedContent);
   }
 
   private updateEnhanceButtons(isInitialized: boolean) {

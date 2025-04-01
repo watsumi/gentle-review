@@ -122,18 +122,25 @@ export class ReviewLLM {
 - Include severity level: [Critical/Important/Suggestion]
 - Do not use the examples in the Output Examples section for actual output
 
+**Input Examples**:
+1. English:
+"This error handling is terrible"
+
+2. French:
+"erreur typographique"
+
+3. Japanese:
+"タイポ"
+
 **Output Examples**:
-1. English -> English:
-English Input: "This error handling is terrible"
-English Output: "Let's strengthen the error handling in [file:api_service.go]. Adding recovery middleware would prevent cascading failures (Why). Example: defer recover() (Severity: Critical)"
+1. English:
+"Let's strengthen the error handling in [file:api_service.go]. Adding recovery middleware would prevent cascading failures (Why). Example: defer recover() (Severity: Critical)"
 
-2. French -> French:
-French Input: "erreur typographique"
-French Output: "Corriger l'orthographe de configration → configuration. Il est important de conserver une dénomination cohérente pour éviter toute confusion. (Importance : faible)"
+2. French:
+"Corriger l'orthographe de configration → configuration. Il est important de conserver une dénomination cohérente pour éviter toute confusion. (Importance : faible)"
 
-2. Japanese -> Japanese:
-Japanese Input: "タイポ"
-Japanese Output: "configration → configuration のスペルを修正しましょう。混乱を防ぐために、一貫した命名を維持することが重要です。 (重要度: 低)"
+3. Japanese:
+"configration → configuration のスペルを修正しましょう。混乱を防ぐために、一貫した命名を維持することが重要です。 (重要度: 低)"
 `,
       },
       {
